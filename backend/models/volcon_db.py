@@ -205,3 +205,4 @@ class TokenBlocklist(db.Model, SerializerMixin):
     )
     created_at = db.Column(
         db.DateTime, default=datetime.utcnow, nullable=False)
+    
