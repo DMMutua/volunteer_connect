@@ -1,4 +1,6 @@
+import psycopg2
 from flask import Flask
+import os
 from backend.models.volcon_db import db, User, TokenBlocklist
 from backend.volcon.auth.Controller import AuthController
 from backend.volcon.missions.Controller import MissionController
@@ -13,16 +15,17 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 
-# Connecting to xampp mysql engine using database URI
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:''@localhost/volcon_db_test'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:9OpFkq2PjuSryJFZbg66@containers-us-west-113.railway.app:7034/railway?charset=utf8mb4'
+# Change the database URI to use PostgreSQL
+# app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://username:password@localhost:5432/database_name"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
+
 # We're not using flask_sqlalchemy event system -
 # we can remove the warning using the statement below
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
-app.config["JWT_SECRET_KEY"] = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IlZvbHVudGVlckNvbm5lY3QiLCJleHAiOjE2NzkzMTExNzgsImlhdCI6MTY3OTMxMTE3OH0.bj5LJGeR2mT3vs3iIGkW7BnnxEyF9s5tp_5SaUKf4mQ"
+app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET_KEY')
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
 jwt = JWTManager(app)
@@ -79,4 +82,5 @@ def session_clear(exception=None):
     if exception and db.session.is_active:
         db.session.rollback()
 
-db.create_all()
+with app.app_context():
+    db.create_all()

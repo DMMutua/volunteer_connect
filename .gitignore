@@ -39,3 +39,6 @@ frontend/yarn-debug.log*
 frontend/yarn-error.log*
 
 .gittoken
+
+#Environment Variables to protect DB Credentials
+.env
